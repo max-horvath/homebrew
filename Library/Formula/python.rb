@@ -4,13 +4,13 @@ class Python < Formula
   head "https://hg.python.org/cpython", :using => :hg, :branch => "2.7"
   url "https://www.python.org/ftp/python/2.7.10/Python-2.7.10.tgz"
   sha256 "eda8ce6eec03e74991abb5384170e7c65fcd7522e409b8e83d7e6372add0f12a"
-  revision 1
+  revision 2
 
   bottle do
     revision 3
-    sha256 "ccba730727091bd73020348787077b224bfd93272ea5c8202ec3415e68c3351b" => :yosemite
-    sha256 "3406eb398c7d89bdf670e2c53feecd54df981d2b5562f7bf6586ac7689e580db" => :mavericks
-    sha256 "35c5e98031dbddf10cc02686e97c9cc8ca53429e1c299185303b49a8408516be" => :mountain_lion
+    sha256 "16b0c9e4b255e90f022a1dcf8cf7247bb52667d4240dd25d82787d594e4860b4" => :el_capitan
+    sha256 "b406c0ee81765195a8bc44ceb88ae155390cc388680a0518c597f1a9278520c9" => :yosemite
+    sha256 "2e717460179c72b61ab70f4df401fa5bc7e34a21403754f3397d0e34215ddc01" => :mavericks
   end
 
   # Please don't add a wide/ucs4 option as it won't be accepted.
@@ -29,24 +29,25 @@ class Python < Formula
   depends_on "gdbm" => :recommended
   depends_on "openssl"
   depends_on "homebrew/dupes/tcl-tk" => :optional
+  depends_on "berkeley-db4" => :optional
   depends_on :x11 if build.with?("tcl-tk") && Tab.for_name("homebrew/dupes/tcl-tk").with?("x11")
 
   skip_clean "bin/pip", "bin/pip-2.7"
   skip_clean "bin/easy_install", "bin/easy_install-2.7"
 
   resource "setuptools" do
-    url "https://pypi.python.org/packages/source/s/setuptools/setuptools-18.0.1.tar.gz"
-    sha256 "4d49c99fd51edf22baa997fb6105b07482feaebcb174b7d348a4307c29264b94"
+    url "https://pypi.python.org/packages/source/s/setuptools/setuptools-18.3.1.tar.gz"
+    sha256 "2fa230727104b07e522deec17929e84e041c9047e392c055347a02b0d5ca874d"
   end
 
   resource "pip" do
-    url "https://pypi.python.org/packages/source/p/pip/pip-7.1.0.tar.gz"
-    sha256 "d5275ba3221182a5dd1b6bcfbfc5ec277fb399dd23226d6fa018048f7e0f10f2"
+    url "https://pypi.python.org/packages/source/p/pip/pip-7.1.2.tar.gz"
+    sha256 "ca047986f0528cfa975a14fb9f7f106271d4e0c3fe1ddced6c1db2e7ae57a477"
   end
 
   resource "wheel" do
-    url "https://pypi.python.org/packages/source/w/wheel/wheel-0.24.0.tar.gz"
-    sha256 "ef832abfedea7ed86b6eae7400128f88053a1da81a37c00613b1279544d585aa"
+    url "https://pypi.python.org/packages/source/w/wheel/wheel-0.26.0.tar.gz"
+    sha256 "eaad353805c180a47545a256e6508835b65a8e830ba1093ed8162f19a50a530c"
   end
 
   # Patch for pyport.h macro issue
@@ -60,6 +61,14 @@ class Python < Formula
   # Patch to disable the search for Tk.framework, since Homebrew's Tk is
   # a plain unix build. Remove `-lX11`, too because our Tk is "AquaTk".
   patch :DATA if build.with? "tcl-tk"
+
+  # Fix extension module builds against Xcode 7 SDKs
+  # https://github.com/Homebrew/homebrew/issues/41085
+  # https://bugs.python.org/issue25136
+  patch do
+    url "https://bugs.python.org/file40479/xcode-stubs-2.7.patch"
+    sha256 "86714b750c887065952cd556f4d23246edf3124384f579356c8e377bc6ff2f83"
+  end
 
   def lib_cellar
     prefix/"Frameworks/Python.framework/Versions/2.7/lib/python2.7"
@@ -124,6 +133,7 @@ class Python < Formula
       s.gsub! "do_readline = self.compiler.find_library_file(lib_dirs, 'readline')",
               "do_readline = '#{Formula["readline"].opt_lib}/libhistory.dylib'"
       s.gsub! "/usr/local/ssl", Formula["openssl"].opt_prefix
+      s.gsub! "/usr/include/db4", Formula["berkeley-db4"].opt_include
     end
 
     if build.universal?

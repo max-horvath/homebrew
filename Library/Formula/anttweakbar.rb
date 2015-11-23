@@ -3,13 +3,13 @@ class Anttweakbar < Formula
   homepage "http://www.antisphere.com/Wiki/tools:anttweakbar"
   url "https://downloads.sourceforge.net/project/anttweakbar/AntTweakBar_116.zip"
   version "1.16"
-  sha1 "5743321df3b074f9a82b5ef3e6b54830a715b938"
+  sha256 "fbceb719c13ceb13b9fd973840c2c950527b6e026f9a7a80968c14f76fcf6e7c"
 
   bottle do
     cellar :any
-    sha1 "103b4c69883ace7c1d24a8ea9405669f491a00bc" => :yosemite
-    sha1 "52b1d49b36d290e5f90897b3fb291c52c936007b" => :mavericks
-    sha1 "370619e705719ed57ba0b31447c1f33a3b014c77" => :mountain_lion
+    sha256 "71bf3f31c1740c2681e6d485ce8c1bfad7d925a4f2a1b6fca7bd5ccec397d05b" => :yosemite
+    sha256 "6c50f550356576120d4c7aa943bd825c23fc70236530561720631aa45070f668" => :mavericks
+    sha256 "6359bdc12aa85c7fdc8332260db1f6aa19675dc6d2f36960ee935510eb0b0184" => :mountain_lion
   end
 
   # See

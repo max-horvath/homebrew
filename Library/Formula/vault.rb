@@ -1,27 +1,24 @@
 require "language/go"
 
 class Vault < Formula
-  desc "secures, stores, and tightly controls access to secrets"
+  desc "Secures, stores, and tightly controls access to secrets"
   homepage "https://vaultproject.io/"
   url "https://github.com/hashicorp/vault.git",
-      :tag => "v0.1.2",
-      :revision => "aa55896b93ba8127f79c8aa7b5707868f085b6d1"
+      :tag => "v0.3.1",
+      :revision => "2b1ddc4a7b7b9754dd55f61494de460fc07239a5"
 
   head "https://github.com/hashicorp/vault.git"
 
   bottle do
-    cellar :any
-    sha256 "1a35804f6c32c563b16ec88ee4a96a05b602ad0e1da9d307752c6887d87f9972" => :yosemite
-    sha256 "51471edca0156a5624ad2add4c98a56d8c202d595c4c9b623a092a996c3adcca" => :mavericks
-    sha256 "f85be6356b1704f71ad14c2066c7979b72cb65de91afd47f730e86f432e8d02a" => :mountain_lion
+    cellar :any_skip_relocation
+    revision 1
+    sha256 "a52e6daba780f523191e96a7ab3084b48190354db95d2d2dc7039a16c7fbcb82" => :el_capitan
+    sha256 "28ba8b9ef7a457741250a680885964ebb1daa5a6e779862df5d0809508f99f34" => :yosemite
+    sha256 "f7088ed870024f5b8c3d1abef77ffe5d4533e68d22c47433b9ea00ba3d67378e" => :mavericks
   end
 
   depends_on "go" => :build
-
-  go_resource "github.com/tools/godep" do
-    url "https://github.com/tools/godep.git",
-        :revision => "e2d1eb1649515318386cc637d8996ab37d6baa5e"
-  end
+  depends_on "godep" => :build
 
   # godep's dependencies
   go_resource "github.com/kr/fs" do
@@ -54,10 +51,6 @@ class Vault < Formula
     ENV.prepend_create_path "PATH", gopath/"bin"
 
     Language::Go.stage_deps resources, gopath/"src"
-
-    cd gopath/"src/github.com/tools/godep" do
-      system "go", "install"
-    end
 
     cd gopath/"src/github.com/mitchellh/gox" do
       system "go", "install"

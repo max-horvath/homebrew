@@ -1,16 +1,15 @@
-require "formula"
-
 class TelepathyGlib < Formula
   desc "Telepathy GLib library for clients and connection managers"
   homepage "http://telepathy.freedesktop.org/wiki/"
   url "http://telepathy.freedesktop.org/releases/telepathy-glib/telepathy-glib-0.24.0.tar.gz"
-  sha1 "43a3e9f3e08725b689aba3baa487c9711d436888"
+  sha256 "ae0002134991217f42e503c43dea7817853afc18863b913744d51ffa029818cf"
 
   bottle do
     revision 1
-    sha1 "a98475645190b7d9253cc950b828d0ac05b72124" => :yosemite
-    sha1 "f49fed685755aca7c829a779fae1f31855d0195c" => :mavericks
-    sha1 "f01c372f200a12a9e573683a58c3a514a89c0aa9" => :mountain_lion
+    sha256 "12ad2cfa997e030a3f4e3e49f8cbbb50b026a4fa477c620ed219cef4e075e314" => :el_capitan
+    sha256 "3b93cb32a181fa7df3793233c1768b570123db84110104a0262f398e3e828b39" => :yosemite
+    sha256 "2a9cd15f3b16ab5d8e2117ae8b4f103395cf9fb5389097281698b36c3b1b923e" => :mavericks
+    sha256 "b800179fb44ce04b72e37533543025d64e3661f31192216710c4fc67ec1277fa" => :mountain_lion
   end
 
   depends_on "pkg-config" => :build
@@ -29,6 +28,6 @@ class TelepathyGlib < Formula
     ]
 
     system "./configure", *args
-    system "make install"
+    system "make", "install"
   end
 end

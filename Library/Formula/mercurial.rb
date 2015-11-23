@@ -2,15 +2,15 @@
 # of Homebrew.
 class Mercurial < Formula
   desc "Scalable distributed version control system"
-  homepage "https://mercurial.selenic.com/"
-  url "https://mercurial.selenic.com/release/mercurial-3.4.2.tar.gz"
-  sha256 "dcc90e4a8476149ecc8af13c08202860b4c9c987a94c4f3c18b28294b6fd8ecd"
+  homepage "https://mercurial-scm.org/"
+  url "https://mercurial-scm.org/release/mercurial-3.6.1.tar.gz"
+  sha256 "d4647943165affd11baf0705556920481d5346b97604babab6ad76f1744474c6"
 
   bottle do
-    cellar :any
-    sha256 "0edc7a26c1db573b9d652075488c14be848d9c161d9aa56a61c63de0eb72d1f4" => :yosemite
-    sha256 "ff38cae3f35feed408d5bd622cd5eee77a6623dc9d25c8e96408e87326703888" => :mavericks
-    sha256 "15cad2b50ded112bdd6b0b57519fc6d236f91415c738a2cfb40370717f39e1f0" => :mountain_lion
+    cellar :any_skip_relocation
+    sha256 "796ce3c914200bb5d0d75d7b8cd291a22176a9573248a49535eeba1dd6ba1ebf" => :el_capitan
+    sha256 "b25d3b0840a1bfe19ab9557d8aec3c9898e91c819cf351b7b82e302a074a935b" => :yosemite
+    sha256 "f8daf8b1f7644c613d4c6993cfc6a45fbb3cdfc637cf5e0f869ae458e607118a" => :mavericks
   end
 
   def install

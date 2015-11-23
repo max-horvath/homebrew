@@ -1,30 +1,31 @@
 class Bind < Formula
   desc "Implementation of the DNS protocols"
   homepage "https://www.isc.org/downloads/bind/"
-  url "https://ftp.isc.org/isc/bind9/9.10.2-P2/bind-9.10.2-P2.tar.gz"
-  mirror "https://fossies.org/linux/misc/dns/bind9/9.10.2-P2/bind-9.10.2-P2.tar.gz"
-  version "9.10.2-P2"
-  sha256 "b1e6f0af88634aaf48fb9d06bbf82968264f49b8e2685f061dd3fd4c1ab76c5f"
-
-  bottle do
-    sha256 "63d408519604d63f2483f4e46a315a32a94347f372e69f7066d85f1d781e46a0" => :yosemite
-    sha256 "fccba7b9b78b1e7b5aac00bee9caa9e933075522e30f02af070edbf91d851023" => :mavericks
-    sha256 "f5419ff67f3eb4e5da3200f769fb15e85d2986515777f632fe39030f84c594ee" => :mountain_lion
-  end
-
+  url "https://ftp.isc.org/isc/bind9/9.10.3/bind-9.10.3.tar.gz"
+  mirror "https://fossies.org/linux/misc/dns/bind9/9.10.3/bind-9.10.3.tar.gz"
+  sha256 "9ac33bd8754ab4b6ee449b1b2aa88e09f51cda088486f4ab1585acd920b98ff0"
   head "https://source.isc.org/git/bind9.git"
 
+  bottle do
+    sha256 "e3e9673cf609149984a4061f3104b40c1eefdaab133c720ef992e60e09181a86" => :el_capitan
+    sha256 "03eb2417b794d4584986284b81225760ca7650a65caea60841b991a824c67597" => :yosemite
+    sha256 "d6c3322b9cfd9a4dde86e5527d106721b60924247146ca5df4348cd48586d857" => :mavericks
+  end
+
   depends_on "openssl"
+  depends_on "json-c" => :optional
 
   def install
     ENV.libxml2
     # libxml2 appends one inc dir to CPPFLAGS but bind ignores CPPFLAGS
     ENV.append "CFLAGS", ENV.cppflags
 
+    json = build.with?("json-c") ? "yes" : "no"
     system "./configure", "--prefix=#{prefix}",
                           "--enable-threads",
                           "--enable-ipv6",
-                          "--with-openssl=#{Formula["openssl"].opt_prefix}"
+                          "--with-openssl=#{Formula["openssl"].opt_prefix}",
+                          "--with-libjson=#{json}"
 
     # From the bind9 README: "Do not use a parallel "make"."
     ENV.deparallelize
@@ -162,5 +163,10 @@ class Bind < Formula
     </dict>
     </plist>
     EOS
+  end
+
+  test do
+    system bin/"dig", "-v"
+    system bin/"dig", "brew.sh"
   end
 end

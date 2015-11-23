@@ -1,50 +1,63 @@
-# Note that x.even are stable releases, x.odd are devel releases
 class Node < Formula
-  desc "Platform built on Chrome's JavaScript runtime to build network applications"
+  desc "Platform built on the V8 JavaScript runtime to build network applications"
   homepage "https://nodejs.org/"
-  url "https://nodejs.org/dist/v0.12.7/node-v0.12.7.tar.gz"
-  sha256 "b23d64df051c9c969b0c583f802d5d71de342e53067127a5061415be7e12f39d"
-  head "https://github.com/joyent/node.git", :branch => "v0.12"
+  url "https://nodejs.org/dist/v5.1.0/node-v5.1.0.tar.gz"
+  sha256 "25b2d3b7dd57fe47a483539fea240a3c6bbbdab4d89a45a812134cf1380ecb94"
+  head "https://github.com/nodejs/node.git"
 
   bottle do
-    sha256 "deae62072a5de00e77f153ffd33b943bba412310528eea0801ccc853e1b3f73f" => :yosemite
-    sha256 "39771c1b6fa382f749afde41e1fb6aeb1bd6b71e98cfa53efb349a93075ef064" => :mavericks
-    sha256 "54dd753c1a0e4e25ffbcd9afbdb7d9ccd6df62e7df4aea08ce97e6b1ffae93d8" => :mountain_lion
+    sha256 "0f9518b4847974b8b67cb195c4e0b3d3797325658eb1beb5d3390a0141821bb9" => :el_capitan
+    sha256 "86fa3b3c73ca32d262dac36328d8d67d14d10e6caf32c73f9bda06603677c488" => :yosemite
+    sha256 "35f7b653e07ad00eefa0b3b869d3f47cb6979062f95008f0b84977f5ea984c2a" => :mavericks
   end
 
   option "with-debug", "Build with debugger hooks"
   option "without-npm", "npm will not be installed"
   option "without-completion", "npm bash completion will not be installed"
+  option "with-full-icu", "Build with full-icu (all locales) instead of small-icu (English only)"
 
   deprecated_option "enable-debug" => "with-debug"
+  deprecated_option "with-icu4c" => "with-full-icu"
 
-  depends_on :python => :build
+  depends_on :python => :build if MacOS.version <= :snow_leopard
   depends_on "pkg-config" => :build
   depends_on "openssl" => :optional
 
-  # https://github.com/joyent/node/issues/7919
-  # https://github.com/Homebrew/homebrew/issues/36681
-  depends_on "icu4c" => :optional
-
-  fails_with :llvm do
-    build 2326
+  # Per upstream - "Need g++ 4.8 or clang++ 3.4".
+  fails_with :clang if MacOS.version <= :snow_leopard
+  fails_with :llvm
+  fails_with :gcc_4_0
+  fails_with :gcc
+  ("4.3".."4.7").each do |n|
+    fails_with :gcc => n
   end
 
+  # We track major/minor from upstream Node releases.
+  # We will accept *important* npm patch releases when necessary.
+  # https://github.com/Homebrew/homebrew/pull/46098#issuecomment-157802319
   resource "npm" do
-    url "https://registry.npmjs.org/npm/-/npm-2.12.1.tgz"
-    sha256 "6b6512c6f9097da193dfe046053d6d0483b5c5658dc0a763c1ba5609b6bbc16c"
+    url "https://registry.npmjs.org/npm/-/npm-3.3.12.tgz"
+    sha256 "09475d7096731d93c0aacd7dfe58794d67c52ee6562675aee6c1f734ddba8158"
+  end
+
+  resource "icu4c" do
+    url "https://ssl.icu-project.org/files/icu4c/56.1/icu4c-56_1-src.tgz"
+    mirror "https://ftp.mirrorservice.org/sites/download.qt-project.org/development_releases/prebuilt/icu/src/icu4c-56_1-src.tgz"
+    version "56.1"
+    sha256 "3a64e9105c734dcf631c0b3ed60404531bce6c0f5a64bfe1a6402a4cc2314816"
   end
 
   def install
     args = %W[--prefix=#{prefix} --without-npm]
     args << "--debug" if build.with? "debug"
-    args << "--with-intl=system-icu" if build.with? "icu4c"
-
-    if build.with? "openssl"
-      args << "--shared-openssl"
+    args << "--shared-openssl" if build.with? "openssl"
+    if build.with? "full-icu"
+      args << "--with-intl=full-icu"
     else
-      args << "--without-ssl2" << "--without-ssl3"
+      args << "--with-intl=small-icu"
     end
+
+    resource("icu4c").stage buildpath/"deps/icu"
 
     system "./configure", *args
     system "make", "install"
@@ -54,8 +67,6 @@ class Node < Formula
 
       # make sure npm can find node
       ENV.prepend_path "PATH", bin
-      # make sure user prefix settings in $HOME are ignored
-      ENV["HOME"] = buildpath/"home"
       # set log level temporarily for npm's `make install`
       ENV["NPM_CONFIG_LOGLEVEL"] = "verbose"
 
@@ -113,15 +124,11 @@ class Node < Formula
       EOS
     end
 
-    if build.with? "icu4c"
+    if build.without? "full-icu"
       s += <<-EOS.undent
-
-        Please note `icu4c` is built with a newer deployment target than Node and
-        this may cause issues in certain usage. Node itself is built against the
-        outdated `libstdc++` target, which is the root cause. For more information see:
-          https://github.com/joyent/node/issues/7919
-
-        If this is an issue for you, do `brew install node --without-icu4c`.
+        Please note by default only English locale support is provided. If you need
+        full locale support you should:
+          `brew reinstall node --with-full-icu`
       EOS
     end
 
@@ -132,9 +139,10 @@ class Node < Formula
     path = testpath/"test.js"
     path.write "console.log('hello');"
 
-    output = `#{bin}/node #{path}`.strip
+    output = shell_output("#{bin}/node #{path}").strip
     assert_equal "hello", output
-    assert_equal 0, $?.exitstatus
+    output = shell_output("#{bin}/node -e 'console.log(new Intl.NumberFormat().format(1234.56))'").strip
+    assert_equal "1,234.56", output
 
     if build.with? "npm"
       # make sure npm can find node
@@ -143,6 +151,7 @@ class Node < Formula
       assert (HOMEBREW_PREFIX/"bin/npm").exist?, "npm must exist"
       assert (HOMEBREW_PREFIX/"bin/npm").executable?, "npm must be executable"
       system "#{HOMEBREW_PREFIX}/bin/npm", "--verbose", "install", "npm@latest"
+      system "#{HOMEBREW_PREFIX}/bin/npm", "--verbose", "install", "bignum"
     end
   end
 end

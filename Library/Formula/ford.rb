@@ -1,33 +1,40 @@
 class Ford < Formula
   desc "Automatic documentation generator for modern Fortran programs"
   homepage "https://github.com/cmacmackin/ford/"
-  url "https://pypi.python.org/packages/source/F/FORD/FORD-3.1.0.tar.gz"
-  sha256 "12c615b2a9b253f67dea6b14854a694b1db505d740b7287fc5265801ab2d6f12"
+  url "https://pypi.python.org/packages/source/F/FORD/FORD-4.2.3.tar.gz"
+  sha256 "8dac3abec4ea88ff68218738bbd0407c2a0b1714c644e28883b1e36611c609b4"
 
   head "https://github.com/cmacmackin/ford.git"
 
   bottle do
-    cellar :any
-    sha256 "6aac01529d40625427310d04e2ad7fea06632afb870d93c5759a798465f13df8" => :yosemite
-    sha256 "af707af63142211084c4f2f7bcd4b7ecc7391349e5ecb2dd99fc16a3b3c393d9" => :mavericks
-    sha256 "ef14210323bbe1f70419bd3e1ebd1078c38ed8c087714214afd3fb611c94e780" => :mountain_lion
+    cellar :any_skip_relocation
+    revision 1
+    sha256 "1568c6f29b3ce8cabd14e742c64899fee7106419012eca0c159f7588d35c4fee" => :el_capitan
+    sha256 "64f2a52e3d3a0c1d74acb8225aa568be508ce50c848fd7bd47d08af2e4f1ad2d" => :yosemite
+    sha256 "04e4235f11b40e7b9ae76680da94bee4ff64565089f50837773cf950365c56dc" => :mavericks
   end
 
+  depends_on "graphviz"
   depends_on :python if MacOS.version <= :snow_leopard
 
-  resource "toposort" do
-    url "https://pypi.python.org/packages/source/t/toposort/toposort-1.4.tar.gz"
-    sha256 "c190b9d9a9e53ae2835f4d524130147af601fbd63677d19381c65067a80fa903"
+  resource "beautifulsoup4" do
+    url "https://pypi.python.org/packages/source/b/beautifulsoup4/beautifulsoup4-4.4.0.tar.gz"
+    sha256 "fad91da88f69438b9ba939ab1b2cabaa31b1d914f1cccb4bb157a993ed2917f6"
+  end
+
+  resource "graphviz" do
+    url "https://pypi.python.org/packages/source/g/graphviz/graphviz-0.4.6.zip"
+    sha256 "f12da6fd8318d909ef13bb269bf6b96dd09d3b908a8e2b373b9ba5dbe3d3ec69"
+  end
+
+  resource "Jinja2" do
+    url "https://pypi.python.org/packages/source/J/Jinja2/Jinja2-2.8.tar.gz"
+    sha256 "bc1ff2ff88dbfacefde4ddde471d1417d3b304e8df103a7a9437d47269201bf4"
   end
 
   resource "Markdown" do
     url "https://pypi.python.org/packages/source/M/Markdown/Markdown-2.6.2.tar.gz"
     sha256 "ee17d0d7dc091e645dd48302a2e21301cc68f188505c2069d8635f94554170bf"
-  end
-
-  resource "beautifulsoup4" do
-    url "https://pypi.python.org/packages/source/b/beautifulsoup4/beautifulsoup4-4.3.2.tar.gz"
-    sha256 "a2b29bd048ca2fe54a046b29770964738872a9747003a371344a93eedf7ad58e"
   end
 
   resource "markdown-include" do
@@ -40,19 +47,19 @@ class Ford < Formula
     sha256 "a4ec1aff59b95a14b45eb2e23761a0179e98319da5a7eb76b56ea8cdc7b871c3"
   end
 
-  resource "Jinja2" do
-    url "https://pypi.python.org/packages/source/J/Jinja2/Jinja2-2.7.3.tar.gz"
-    sha256 "2e24ac5d004db5714976a04ac0e80c6df6e47e98c354cb2c0d82f8879d4f8fdb"
-  end
-
   resource "Pygments" do
     url "https://pypi.python.org/packages/source/P/Pygments/Pygments-2.0.2.tar.gz"
     sha256 "7320919084e6dac8f4540638a46447a3bd730fca172afc17d2c03eed22cf4f51"
   end
 
+  resource "toposort" do
+    url "https://pypi.python.org/packages/source/t/toposort/toposort-1.4.tar.gz"
+    sha256 "c190b9d9a9e53ae2835f4d524130147af601fbd63677d19381c65067a80fa903"
+  end
+
   def install
     ENV.prepend_create_path "PYTHONPATH", libexec/"vendor/lib/python2.7/site-packages"
-    %w[toposort Markdown beautifulsoup4 markdown-include MarkupSafe Jinja2 Pygments].each do |r|
+    %w[beautifulsoup4 graphviz Jinja2 Markdown markdown-include MarkupSafe Pygments toposort].each do |r|
       resource(r).stage do
         system "python", *Language::Python.setup_install_args(libexec/"vendor")
       end
@@ -70,12 +77,12 @@ class Ford < Formula
       project_dir: ./src
       output_dir: ./doc
       project_github: https://github.com/cmacmackin/futility
-      project_website: http://github.com
+      project_website: https://github.com
       summary: Some Fortran program which I wrote.
       author: John Doe
       author_description: I program stuff in Fortran.
       github: https://github.com/cmacmackin
-      email: john.doe@address.com
+      email: john.doe@example.com
       predocmark: >
       docmark_alt: #
       predocmark_alt: <

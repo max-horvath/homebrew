@@ -1,13 +1,13 @@
 class OpenMpi < Formula
   desc "High performance message passing library"
   homepage "https://www.open-mpi.org/"
-  url "https://www.open-mpi.org/software/ompi/v1.8/downloads/openmpi-1.8.6.tar.bz2"
-  sha256 "b9fe3bdfb86bd42cc53448e17f11278531b989b05ff9513bc88ba1a523f14e87"
+  url "https://www.open-mpi.org/software/ompi/v1.10/downloads/openmpi-1.10.1.tar.bz2"
+  sha256 "7919ecde15962bab2e26d01d5f5f4ead6696bbcacb504b8560f2e3a152bfe492"
 
   bottle do
-    sha256 "7e2e8fa7bea94e1ac4ff3eb8c4912c71b2854355f9a0eff42e52a068a24290ac" => :yosemite
-    sha256 "5d8130410f17a814bf40f6e6bd89da01f1f10ac7803341f15a8f9e6da6722d2e" => :mavericks
-    sha256 "299f483c52a86264f31617c086b49c1ab451910211e8e5bfb778fc16396460bb" => :mountain_lion
+    sha256 "257a75a3227ddc0b5e7c970a97c76cadeda417a259c54efbe25df955e0efe32b" => :el_capitan
+    sha256 "2c9afac3f1350e4693e2077fa3b5a6f149fc0b0cb19e804bba15cd8d00e62456" => :yosemite
+    sha256 "7c106ab43c8aa5fcde2d9961a084c4c34d5a8ea1888668d825ce1ec818519e29" => :mavericks
   end
 
   head do
@@ -23,7 +23,7 @@ class OpenMpi < Formula
   option "with-mpi-thread-multiple", "Enable MPI_THREAD_MULTIPLE"
   option :cxx11
 
-  conflicts_with "mpich2", :because => "both install mpi__ compiler wrappers"
+  conflicts_with "mpich", :because => "both install mpi__ compiler wrappers"
   conflicts_with "lcdf-typetools", :because => "both install same set of binaries."
 
   depends_on :java => :build
@@ -41,6 +41,7 @@ class OpenMpi < Formula
       --with-libevent=#{Formula["libevent"].opt_prefix}
       --with-sge
     ]
+    args << "--with-platform-optimized" if build.head?
     args << "--disable-mpi-fortran" if build.without? "fortran"
     args << "--enable-mpi-thread-multiple" if build.with? "mpi-thread-multiple"
 

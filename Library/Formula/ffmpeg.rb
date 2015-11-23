@@ -1,14 +1,14 @@
 class Ffmpeg < Formula
   desc "Play, record, convert, and stream audio and video"
   homepage "https://ffmpeg.org/"
-  url "https://ffmpeg.org/releases/ffmpeg-2.7.1.tar.bz2"
-  sha256 "7e07b97d2415feeae9c9b5595e35e7b7aab33207e81bf9f8c0d1eece43f7f720"
+  url "https://ffmpeg.org/releases/ffmpeg-2.8.2.tar.bz2"
+  sha256 "830ec647f7ad774fc0caf17ba47774bf5dee7a89cbd65894f364a87ba3ad21b2"
   head "https://github.com/FFmpeg/FFmpeg.git"
 
   bottle do
-    sha256 "326c2a662c90fe4e90432b8a6df473cecaede433602241da26c52c68a0402f9f" => :yosemite
-    sha256 "423dc107257192f4aec70fb2b1e83fcafa3247b70590c00edd2b37f388a887dc" => :mavericks
-    sha256 "576c3361d064f2472f9a232322c72a05acf1c62137a36395c8de5d0e5a02d173" => :mountain_lion
+    sha256 "f64fc57eddec2f0ba39f82111641d64d5c5e2cb2f0d632763e2a128da3944c2c" => :el_capitan
+    sha256 "7e2dfbf74763b7c62ce2189857290ec69f0d773d51493b41eb768299646c3ebe" => :yosemite
+    sha256 "839d6593f140577eab402c7f93be9fc739de6996d2e90692c26d575c16e01803" => :mavericks
   end
 
   option "without-x264", "Disable H.264 encoder"
@@ -32,6 +32,7 @@ class Ffmpeg < Formula
   option "with-libsoxr", "Enable the soxr resample library"
   option "with-webp", "Enable using libwebp to encode WEBP images"
   option "with-zeromq", "Enable using libzeromq to receive commands sent through a libzeromq client"
+  option "with-snappy", "Enable Snappy library"
 
   depends_on "pkg-config" => :build
 
@@ -55,6 +56,7 @@ class Ffmpeg < Formula
   depends_on "libass" => :optional
   depends_on "openjpeg" => :optional
   depends_on "sdl" if build.with? "ffplay"
+  depends_on "snappy" => :optional
   depends_on "speex" => :optional
   depends_on "schroedinger" => :optional
   depends_on "fdk-aac" => :optional
@@ -70,6 +72,7 @@ class Ffmpeg < Formula
   depends_on "libssh" => :optional
   depends_on "webp" => :optional
   depends_on "zeromq" => :optional
+  depends_on "libbs2b" => :optional
 
   def install
     args = ["--prefix=#{prefix}",
@@ -81,13 +84,16 @@ class Ffmpeg < Formula
             "--enable-avresample",
             "--cc=#{ENV.cc}",
             "--host-cflags=#{ENV.cflags}",
-            "--host-ldflags=#{ENV.ldflags}",
+            "--host-ldflags=#{ENV.ldflags}"
            ]
+
+    args << "--enable-opencl" if MacOS.version > :lion
 
     args << "--enable-libx264" if build.with? "x264"
     args << "--enable-libmp3lame" if build.with? "lame"
     args << "--enable-libvo-aacenc" if build.with? "libvo-aacenc"
     args << "--enable-libxvid" if build.with? "xvid"
+    args << "--enable-libsnappy" if build.with? "snappy"
 
     args << "--enable-libfontconfig" if build.with? "fontconfig"
     args << "--enable-libfreetype" if build.with? "freetype"
@@ -113,6 +119,7 @@ class Ffmpeg < Formula
     args << "--enable-libx265" if build.with? "x265"
     args << "--enable-libwebp" if build.with? "webp"
     args << "--enable-libzmq" if build.with? "zeromq"
+    args << "--enable-libbs2b" if build.with? "libbs2b"
     args << "--disable-indev=qtkit" if build.without? "qtkit"
 
     if build.with? "openjpeg"
